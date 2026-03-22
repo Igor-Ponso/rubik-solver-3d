@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { type Move } from './engine/cube'
+import { ref } from 'vue'
 import RubikCube from './components/RubikCube.vue'
 import { useCube } from './composables/useCube'
+
+const puzzleSize = ref(2)
 
 const {
   isAnimating,
@@ -27,13 +29,13 @@ const {
   redo,
   dequeueMove,
   commitMove,
-} = useCube()
+} = useCube(puzzleSize)
 
 function isBusy() {
   return isSolving.value || isAnimating.value
 }
 
-const moveButtons: { label: string; move: Move }[] = [
+const moveButtons = [
   { label: 'R', move: 'R' },
   { label: "R'", move: "R'" },
   { label: 'L', move: 'L' },
@@ -52,8 +54,11 @@ const moveButtons: { label: string; move: Move }[] = [
 <template>
   <div class="app">
     <header class="header">
-      <h1>Rubik's Cube <span class="accent">2x2</span></h1>
-      <p class="subtitle">3D Interactive Solver</p>
+      <h1>Rubik's Cube <span class="accent">{{ puzzleSize }}x{{ puzzleSize }}</span></h1>
+      <div class="size-toggle">
+        <button :class="{ active: puzzleSize === 2 }" @click="puzzleSize = 2">2x2</button>
+        <button :class="{ active: puzzleSize === 3 }" @click="puzzleSize = 3">3x3</button>
+      </div>
     </header>
 
     <main class="main">
@@ -63,6 +68,7 @@ const moveButtons: { label: string; move: Move }[] = [
           :commitMove="commitMove"
           :isAnimating="isAnimating"
           :sceneVersion="sceneVersion"
+          :puzzleSize="puzzleSize"
         />
       </div>
 
@@ -118,25 +124,26 @@ const moveButtons: { label: string; move: Move }[] = [
           <button
             class="btn btn-scramble"
             :class="{ active: isRandomizing }"
-            :disabled="!isRandomizing && isBusy()"
+            :disabled="!isRandomizing && isThinking"
             @click="randomize"
           >
             <span class="btn-icon">{{ isRandomizing ? '&#x23F9;' : '&#x1f3b2;' }}</span>
             {{ isRandomizing ? 'Stop' : 'Randomize' }}
           </button>
 
-          <button class="btn btn-solve-quick" :disabled="isBusy() || solved" @click="solveQuick">
+          <button class="btn btn-solve-quick" :disabled="solved && !isRandomSolving" @click="solveQuick">
             <span class="btn-icon">&#x26a1;</span>
             Quick Solve
           </button>
 
           <button
             class="btn btn-solve-random"
-            :disabled="(isSolving && !isRandomSolving) || isAnimating || solved"
+            :class="{ active: isRandomSolving }"
+            :disabled="solved && !isRandomSolving"
             @click="solveRandom"
           >
-            <span class="btn-icon">&#x1f340;</span>
-            Random Solve
+            <span class="btn-icon">{{ isRandomSolving ? '&#x23F8;' : '&#x1f340;' }}</span>
+            {{ isRandomSolving ? 'Pause' : 'Random Solve' }}
           </button>
 
           <button class="btn btn-reset" @click="reset">
@@ -201,10 +208,35 @@ body {
   background-clip: text;
 }
 
-.subtitle {
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.15rem;
+.size-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.size-toggle button {
+  padding: 0.25rem 0.8rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: #888;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.size-toggle button.active {
+  background: rgba(255,89,0,0.2);
+  border-color: #ff5900;
+  color: #fff;
+}
+
+.size-toggle button:hover:not(.active) {
+  background: rgba(255,255,255,0.1);
+  color: #ccc;
 }
 
 .main {
@@ -461,6 +493,12 @@ body {
 .btn-solve-random:hover:not(:disabled) {
   border-color: #0045AD;
   box-shadow: 0 0 20px rgba(0, 69, 173, 0.15);
+}
+
+.btn-solve-random.active {
+  border-color: #FFD500;
+  background: rgba(255, 213, 0, 0.15);
+  box-shadow: 0 0 20px rgba(255, 213, 0, 0.2);
 }
 
 .btn-reset:hover:not(:disabled) {
