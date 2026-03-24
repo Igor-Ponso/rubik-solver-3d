@@ -26,7 +26,9 @@ export async function initSolver3(): Promise<void> {
 
   initPromise = (async () => {
     if (!getCube()) {
-      await loadScript('/cubejs.js')
+      // Use import.meta.env.BASE_URL so the path works with any Vite base config
+      const base = import.meta.env.BASE_URL || '/'
+      await loadScript(`${base}cubejs.js`)
     }
     const Cube = getCube()
     if (!Cube) throw new Error('cubejs failed to load')
