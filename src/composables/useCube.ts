@@ -293,11 +293,11 @@ export function useCube(puzzleSize: Ref<number>) {
   watch(puzzleSize, () => {
     reset()
     if (puzzleSize.value === 3) {
-      isThinking.value = true
       statusMessage.value = 'Loading 3x3 solver...'
       initSolver3().then(() => {
-        isThinking.value = false
-        statusMessage.value = ''
+        if (puzzleSize.value === 3) statusMessage.value = ''
+      }).catch(() => {
+        statusMessage.value = 'Failed to load 3x3 solver'
       })
     }
   })
