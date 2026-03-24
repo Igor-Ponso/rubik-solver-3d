@@ -2,7 +2,7 @@
 
 A 3D interactive Rubik's Cube (2x2 and 3x3) with multiple solving modes, built with Vue 3 and CSS 3D transforms.
 
-**[Live Demo](https://igor-ponso.github.io/rubik-solver/)**
+**[Live Demo](https://igor-ponso.github.io/rubik-solver-3d/)**
 
 ## Features
 
