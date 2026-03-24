@@ -67,7 +67,7 @@ function transformPos(pos: [number,number,number], rotKey: string): [number,numb
 
 // ─── Cubie definitions ─────────────────────────────────────────────────
 const C = COLORS
-const D = '#111'
+const D = '#222'
 
 interface CubieDef {
   pos: [number,number,number]
@@ -366,5 +366,5 @@ function cubieTransform(c: Cubie): string {
 .rotation-group.animating { transition: transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 .cubie { position: absolute; transform-style: preserve-3d; }
 .cubie.hidden { visibility: hidden; }
-.face { position: absolute; border: 2px solid #1a1a1a; border-radius: 3px; }
+.face { position: absolute; border: 2px solid var(--cubie-border, #1a1a1a); border-radius: 3px; }
 </style>

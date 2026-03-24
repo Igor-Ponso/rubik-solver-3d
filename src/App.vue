@@ -4,6 +4,12 @@ import RubikCube from './components/RubikCube.vue'
 import { useCube } from './composables/useCube'
 
 const puzzleSize = ref(2)
+const darkMode = ref(true)
+
+function toggleTheme() {
+  darkMode.value = !darkMode.value
+  document.documentElement.setAttribute('data-theme', darkMode.value ? 'dark' : 'light')
+}
 
 const {
   isAnimating,
@@ -54,7 +60,12 @@ const moveButtons = [
 <template>
   <div class="app">
     <header class="header">
-      <h1>Rubik's Cube <span class="accent">{{ puzzleSize }}x{{ puzzleSize }}</span></h1>
+      <div class="header-row">
+        <h1>Rubik's Cube <span class="accent">{{ puzzleSize }}x{{ puzzleSize }}</span></h1>
+        <button class="theme-btn" @click="toggleTheme" :title="darkMode ? 'Light mode' : 'Dark mode'">
+          {{ darkMode ? '&#x2600;' : '&#x1F319;' }}
+        </button>
+      </div>
       <div class="size-toggle">
         <button :class="{ active: puzzleSize === 2 }" @click="puzzleSize = 2">2x2</button>
         <button :class="{ active: puzzleSize === 3 }" @click="puzzleSize = 3">3x3</button>
@@ -159,6 +170,38 @@ const moveButtons = [
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
+:root, [data-theme="dark"] {
+  --bg: #0a0a10;
+  --bg-controls: rgba(10, 10, 16, 0.8);
+  --text: #e0e0e0;
+  --text-muted: #888;
+  --text-dim: #555;
+  --title: #fff;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --btn-bg: rgba(255, 255, 255, 0.05);
+  --btn-bg-hover: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.03);
+  --badge-bg: rgba(255, 255, 255, 0.08);
+  --cubie-border: #1a1a1a;
+}
+
+[data-theme="light"] {
+  --bg: #f0f0f5;
+  --bg-controls: rgba(240, 240, 245, 0.9);
+  --text: #333;
+  --text-muted: #666;
+  --text-dim: #aaa;
+  --title: #111;
+  --border: rgba(0, 0, 0, 0.12);
+  --border-hover: rgba(0, 0, 0, 0.3);
+  --btn-bg: rgba(0, 0, 0, 0.04);
+  --btn-bg-hover: rgba(0, 0, 0, 0.08);
+  --input-bg: rgba(0, 0, 0, 0.03);
+  --badge-bg: rgba(0, 0, 0, 0.07);
+  --cubie-border: #333;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -167,11 +210,12 @@ const moveButtons = [
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0a0a10;
-  color: #e0e0e0;
+  background: var(--bg);
+  color: var(--text);
   overflow-x: hidden;
   height: 100vh;
   width: 100vw;
+  transition: background 0.3s, color 0.3s;
 }
 
 #app {
@@ -194,11 +238,32 @@ body {
   flex-shrink: 0;
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
 .header h1 {
   font-size: 1.6rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--title);
+}
+
+.theme-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.theme-btn:hover {
+  background: var(--btn-bg-hover);
 }
 
 .accent {
@@ -217,10 +282,10 @@ body {
 
 .size-toggle button {
   padding: 0.25rem 0.8rem;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background: rgba(255,255,255,0.05);
-  color: #888;
+  background: var(--btn-bg);
+  color: var(--text-muted);
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
@@ -231,12 +296,12 @@ body {
 .size-toggle button.active {
   background: rgba(255,89,0,0.2);
   border-color: #ff5900;
-  color: #fff;
+  color: var(--title);
 }
 
 .size-toggle button:hover:not(.active) {
   background: rgba(255,255,255,0.1);
-  color: #ccc;
+  color: var(--text);
 }
 
 .main {
@@ -255,7 +320,7 @@ body {
 .controls {
   flex-shrink: 0;
   padding: 0.6rem 1rem 1rem;
-  background: linear-gradient(to top, rgba(10, 10, 16, 1), rgba(10, 10, 16, 0.8));
+  background: linear-gradient(to top, var(--bg), var(--bg-controls));
 }
 
 .status-bar {
@@ -274,7 +339,7 @@ body {
 .move-counter {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .solved-badge {
@@ -283,7 +348,7 @@ body {
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   background: #009B48;
-  color: #fff;
+  color: var(--title);
 }
 
 .timer {
@@ -319,7 +384,7 @@ body {
 
 .status-message {
   font-size: 0.8rem;
-  color: #aaa;
+  color: var(--text-muted);
   margin-top: 0.2rem;
 }
 
@@ -336,8 +401,8 @@ body {
   padding: 0.4rem 0;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #e0e0e0;
+  background: var(--btn-bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
@@ -346,8 +411,8 @@ body {
 }
 
 .move-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: var(--btn-bg-hover);
+  border-color: var(--border-hover);
   transform: translateY(-1px);
 }
 
@@ -375,8 +440,8 @@ body {
   align-items: center;
   gap: 0.25rem;
   padding: 0.3rem 0.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   min-height: 2rem;
   overflow-x: auto;
@@ -388,14 +453,14 @@ body {
   font-weight: 600;
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #ccc;
+  background: var(--badge-bg);
+  color: var(--text);
   white-space: nowrap;
 }
 
 .history-empty {
   font-size: 0.7rem;
-  color: #555;
+  color: var(--text-dim);
 }
 
 .btn-undo,
@@ -404,10 +469,10 @@ body {
   align-items: center;
   gap: 0.2rem;
   padding: 0.35rem 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #ccc;
+  background: var(--btn-bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
   font-weight: 600;
@@ -418,8 +483,8 @@ body {
 
 .btn-undo:hover:not(:disabled),
 .btn-redo:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--btn-bg-hover);
+  border-color: var(--border-hover);
 }
 
 .btn-undo:disabled,
@@ -443,10 +508,10 @@ body {
   align-items: center;
   gap: 0.2rem;
   padding: 0.6rem 0.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #e0e0e0;
+  background: var(--btn-bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
   font-weight: 600;
@@ -456,8 +521,8 @@ body {
 }
 
 .btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--btn-bg-hover);
+  border-color: var(--border-hover);
   transform: translateY(-1px);
 }
 
